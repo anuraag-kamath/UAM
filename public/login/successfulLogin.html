@@ -1,0 +1,17 @@
+<html>
+
+<head>
+    <script>
+        loadPage=()=>{
+            var url=window.location;
+            var userName=(String(url).substr(String(url).indexOf("=")+1))
+            document.body.innerHTML="<h1>Welcome, "+userName+"!</h1>"
+        }
+    </script>
+</head>
+
+<body onload="loadPage()">
+
+</body>
+
+</html>

@@ -1,0 +1,142 @@
+body{
+    font-size: 3em;
+    box-sizing: border-box;
+
+}
+
+.loading {
+    -webkit-transition: background-color 0;
+    transition: background-color 0;
+    opacity: 0;
+    -webkit-transition: opacity 0;
+    transition: opacity 0;
+    position: fixed;
+    top:0;
+}
+
+
+
+#loading {
+    background-color: blue;
+    height: 1vh;
+    opacity: 1;
+    position: fixed;
+    top:0;
+}
+
+
+.left-section {
+    background-color: grey;
+}
+
+
+.k1 {
+    height: 400px;
+    width: 400px;
+    background-color: white;
+    margin: auto auto;
+    justify-content: center;
+    display: block;
+    margin-top:40px;
+   
+}
+
+
+.right-section {
+    background-color: grey;
+    overflow: scroll;
+
+}
+
+.left-imgs {
+    width: 100%;
+
+}
+
+.left-imgs:hover {
+    cursor: pointer;
+}
+
+.left-cols {
+    padding: 0.3em;
+}
+
+.hide-left{
+    background-color: red;
+    height: 80vh;
+    
+}
+
+.left-section row{
+    height: 100%;
+}
+
+.left-section #toggle {
+    cursor: pointer;
+}
+
+.test-c {
+    margin: auto;
+    height: 100%;
+}
+
+#megaCheck{
+    display: none;
+    height: 100%;
+    width: 100%;
+    background-color: black;
+    position: absolute;
+    z-index: 1;
+    opacity: 1;
+    
+}
+
+
+
+
+
+#megaCheck .k1 .header {
+    background-color: pink;
+}
+
+form {
+    background-color: aqua;
+    width: 10em;
+    height: 10em;
+}
+
+#preview,#saveForm {
+    display: block;
+    margin: auto;
+    margin-bottom: 15px;
+}
+
+.megatest {
+    position: absolute;
+}
+
+
+#footer {
+    height: 20vh;
+    background-color: darkgrey;
+}
+
+#main {
+    height: 80vh;
+    margin: 0;
+}
+
+#addObject {
+    float:right;
+}
+
+input {
+    max-width: 80%;
+    margin:auto;
+    margin-top: 10px;
+}
+
+
+#mess {
+    font-size: 0.4em
+}

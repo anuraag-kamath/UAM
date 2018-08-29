@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/login.css">
+
+</head>
+ 
+<body>
+    <div id="loader" class="loader">
+        <div class="loading" id="loading" style="visibility: hidden"></div>
+    </div>
+    <div class="container-fluid" readonly="">
+        <div id="megaCheck">
+            <div class="k1" id="contentModal">
+                <div class="header" style="display: flex;justify-content: space-between" id="headerModal">
+                    <div>Add a row</div>
+                    <button id="closeModal" style="float:right">X</button>
+                </div>
+                <div id="contentModal1"></div>
+            </div>
+        </div>
+        <div class="main-section" id="main-section" style="height:100vh">
+            <div id="1531198044526" class="" placeholder="null" bind="null" src="null" style="display: flex; height: 90%;/*margin-top:30px*/; border: 2px solid black;border-radius: 10%;">
+                <form id="1531198061768" name="" class="form-group" placeholder="" bind="null" src="null" style="height: 50%; margin: auto;border-radius: 25%">
+                    <div style="text-align:center;">
+                        <img class="img-responsive" src="./resources/login.png" style="height:1em">
+                    </div>
+                    <input id="username" name="" class="form-control" placeholder="username" bind="null" src="null" required>
+                    <input id="password" type="password" name="" class="form-control" placeholder="password" bind="null" src="null" required>
+                    <input id="reg_email" name="" class="form-control" placeholder="Email(Only for new users)" bind="null" src="null" type="email">
+                    <div id="buttons" class="" placeholder="" bind="null" src="null" style="text-align: center; /*margin: 1em 0px 0px; */">
+                        <button type="button" id="register" name="" class="btn btn-primary" placeholder="null" bind="null" src="null">Register</button>
+                        <button id="login" name="" class="btn btn-primary" placeholder="null" bind="null" src="null">Login</button>
+                        <br>
+                        <button id="sendActivationLink" name="" class="btn btn-primary" placeholder="null" bind="null" src="null">Send Activation</button>
+                        <button id="resetPassword" style="display:none" name="" class="btn btn-primary" placeholder="null" bind="null" src="null">Reset Password</button>
+                        <p id="mess" style="visibility: hidden"></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="application/javascript" src="./js/login.js">
+    </script>
+
+
+</body>
+
+</html>
