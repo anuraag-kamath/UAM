@@ -19,5 +19,9 @@
     "mongoose": "^5.2.9",
     "nodemailer": "^4.6.8",
     "path": "^0.12.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://bitbucket.org/m4vr1ck/uam.git"
   }
 }
