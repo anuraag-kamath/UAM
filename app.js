@@ -20,6 +20,7 @@ const jwt_key = process.env.JWT_KEY || "alphabetagamma"
 const email_id = process.env.EMAIL_ID || ""
 const email_password = process.env.EMAIL_PASSWORD || ""
 const email_provider = process.env.EMAIL_PROVIDER || "";
+const activation_url = process.env.ACTIVATION_URL || "http://localhost:12000"
 
 app = express();
 app.use(bodyparser.json());
@@ -103,7 +104,7 @@ app.post('/register', (req, res) => {
                                 activationId: Math.random() * (new Date().getTime())
                             })
                             usr.save().then((res8) => {
-                                sendMail(res8.email, 'Account Activation', "<h3>Dear " + res8.username + ",</h3><br><br><p>Click the link to activate your account!</p><hr><a href='https://dry-depths-41802.herokuapp.com/api/uam/activate/" + res8.activationId + "/" + res8._id + "'>Click me!</a><hr><br><br>");
+                                sendMail(res8.email, 'Account Activation', "<h3>Dear " + res8.username + ",</h3><br><br><p>Click the link to activate your account!</p><hr><a href='"+activation_url+"/api/uam/activate/" + res8.activationId + "/" + res8._id + "'>Click me!</a><hr><br><br>");
                                 //logger("API", "login", "", "", "success", res8._id, req.connection.remoteAddress, "POST");
                                 res.send({ error: "Check your mail to verify the email address!" })
                             });
@@ -121,7 +122,7 @@ app.post('/register', (req, res) => {
                     activationId: Math.random() * (new Date().getTime())
                 })
                 usr.save().then((res8) => {
-                    sendMail(res8.email, 'Account Activation and Username creation', "<h3>Dear " + res8.username + ",</h3><br><br><p>Click the link to activate your account and create a new username and password!</p><hr><a href='https://dry-depths-41802.herokuapp.com/api/uam/activate/" + res8.activationId + "/" + res8._id + "?channel=adminCreated'>Click me!</a><hr><br><br>");
+                    sendMail(res8.email, 'Account Activation and Username creation', "<h3>Dear " + res8.username + ",</h3><br><br><p>Click the link to activate your account and create a new username and password!</p><hr><a href='"+activation_url+"/api/uam/activate/" + res8.activationId + "/" + res8._id + "?channel=adminCreated'>Click me!</a><hr><br><br>");
                     //logger("API", "login", "", "", "success", res8._id, req.connection.remoteAddress, "POST");
                     res.send({ error: "OK" })
                 });
@@ -510,7 +511,7 @@ app.post('/resendActivationLink', (req, res) => {
     user.find({ "email": email }).then((users) => {
         if (users.length > 0) {
             if (users[0].activated == false) {
-                sendMail(users[0].email, 'Account Activation', "<h3>Dear " + users[0].username + ",</h3><br><br><p>Click the link to activate your account!</p><hr><a href='https://dry-depths-41802.herokuapp.com/api/uam/api/uam/activate/" + users[0].activationId + "/" + users[0]._id + "'>Click me!</a><hr><br><br>");
+                sendMail(users[0].email, 'Account Activation', "<h3>Dear " + users[0].username + ",</h3><br><br><p>Click the link to activate your account!</p><hr><a href='"+activation_url+"/api/uam/api/uam/activate/" + users[0].activationId + "/" + users[0]._id + "'>Click me!</a><hr><br><br>");
                 res.send({ status: "OK", message: "Check your mail to verify the email address!" })
 
             } else {
