@@ -15,6 +15,7 @@ const { mongoose } = require('./db/database')
 const { user } = require('./schemas/user');
 const { roles } = require('./schemas/roles');
 var { userActivity } = require('./schemas/userActivity');
+ 
 
 
 const port = process.env.UAM_PORT || 9100;
@@ -526,7 +527,7 @@ app.post('/resendActivationLink', (req, res) => {
     user.find({ "email": email }).then((users) => {
         if (users.length > 0) {
             if (users[0].activated == false) {
-                sendMail(users[0].email, 'Account Activation', "<h3>Dear " + users[0].username + ",</h3><br><br><p>Click the link to activate your account!</p><hr><a href='" + activation_url + "/api/uam/api/uam/activate/" + users[0].activationId + "/" + users[0]._id + "'>Click me!</a><hr><br><br>");
+                sendMail(users[0].email, 'Account Activation', "<h3>Dear " + users[0].username + ",</h3><br><br><p>Click the link to activate your account!</p><hr><a href='" + activation_url + "/api/uam/activate/" + users[0].activationId + "/" + users[0]._id + "'>Click me!</a><hr><br><br>");
                 //logger("API", "resendActivationLink", "", req.body.email, "success", "", req.connection.remoteAddress, "POST");
                 res.send({ status: "OK", message: "Check your mail to verify the email address!" })
 
