@@ -26,7 +26,6 @@
                     method: "POST",
                     body: '{"username":"' + document.getElementById('username').value + '","password":"' + document.getElementById('password1').value + '"}'
                 }).then((prom) => prom.text()).then((res23) => {
-                    console.log(res23);
                     if (res23.indexOf("Activated!") != -1) {
                         document.getElementById('content').innerHTML = "Activated! <a href='/login'>Click here to login!</a>"
 

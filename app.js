@@ -14,6 +14,8 @@ const { ObjectID } = require('mongodb');
 const { mongoose } = require('./db/database')
 const { user } = require('./schemas/user');
 const { roles } = require('./schemas/roles');
+var { userActivity } = require('./schemas/userActivity');
+
 
 const port = process.env.UAM_PORT || 9100;
 const jwt_key = process.env.JWT_KEY || "alphabetagamma"
@@ -21,6 +23,8 @@ const email_id = process.env.EMAIL_ID || ""
 const email_password = process.env.EMAIL_PASSWORD || ""
 const email_provider = process.env.EMAIL_PROVIDER || "";
 const activation_url = process.env.ACTIVATION_URL || "http://localhost:12000"
+const logging_enabled = process.env.LOGGING_ENABLED || false
+
 
 app = express();
 app.use(bodyparser.json());
@@ -34,37 +38,34 @@ app.use(cookieParser())
 app.use(express.static(__dirname + "/public/login"));
 
 app.get('/whoami', (req, res) => {
-    // logger("API", "whoami", "", "", "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "GET");
+    //logger("API", "whoami", "", "", "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "GET");
     user.findById(jsonwebtoken.verify(req.cookies.token, jwt_key).userId, (err, res1) => {
         res.send('{"user":"' + res1.username + '","userId":"' + jsonwebtoken.verify(req.cookies.token, jwt_key).userId + '"}')
     })
-    // user.findById("5b7fe4fa455af53e1871c179", (err, res1) => {
-    //     res.send('{"user":"' + res1.username + '","userId":"' +"5b7fe4fa455af53e1871c179"  + '"}')
-    // })
-
 })
 
-
 // logger = (activity, subActivity, subsubActivity, activityId, status, userId, ipAddress, method) => {
-//     console.log(activity);
-//     if (userId.length > 0) {
-//         user.findById(userId, (err, res1) => {
-//             if (res1 != undefined && res1 !== 'undefined' && res1.user != undefined && res1.user !== 'undefined') {
-//                 act = new userActivity({
-//                     activity, subActivity, subsubActivity, activityId, status, userId, user: res1.user.username, ipAddress, method, logDate: new Date()
-//                 });
-//                 act.save();
+//     if (logging_enabled == true) {
+//         if (userId.length > 0) {
+//             user.findById(userId, (err, res1) => {
+//                 if (res1 != undefined && res1 !== 'undefined' && res1.user != undefined && res1.user !== 'undefined') {
+//                     act = new userActivity({
+//                         activity, subActivity, subsubActivity, activityId, status, userId, user: res1.user.username, ipAddress, method, logDate: new Date(), domain: "UAM"
+//                     });
+//                     act.save();
 
-//             }
+//                 }
 
 
-//         })
+//             })
 
-//     } else {
-//         act = new userActivity({
-//             activity, subActivity, subsubActivity, activityId, status, userId, user: "", ipAddress, method, logDate: new Date()
-//         });
-//         act.save();
+//         } else {
+//             act = new userActivity({
+//                 activity, subActivity, subsubActivity, activityId, status, userId, user: "", ipAddress, method, logDate: new Date(), domain: "UAM"
+//             });
+//             act.save();
+
+//         }
 
 //     }
 // }
@@ -72,13 +73,14 @@ app.get('/whoami', (req, res) => {
 
 
 app.post('/register', (req, res) => {
-    console.log("ABCD");
     var username = req.body.username;
     var password = req.body.password;
     var email = req.body.email;
     var mode = req.query.channel;
     user.find({ "email": email }).then((doc) => {
         if (doc.length > 0) {
+            //logger("API", "register", "", "", "failure", "", req.connection.remoteAddress, "POST");
+
             res.send({ error: "Email ID already registered" });
         } else {
             if (mode != "admin") {
@@ -89,10 +91,9 @@ app.post('/register', (req, res) => {
                         } else {
                             res.send({ error: "Username already exists" });
                         }
-                        // logger("API", "register", "", doc[0].user.username, "failure", "", req.connection.remoteAddress, "POST");
+                        //logger("API", "register", "", doc[0].user.username, "failure", "", req.connection.remoteAddress, "POST");
                     }
                     else {
-                        // logger("API", "register", "", "", "success", "", req.connection.remoteAddress, "POST");
                         bcrypt.hash(password, 10).then((res2) => {
                             var usr = new user({
                                 username: username,
@@ -104,8 +105,8 @@ app.post('/register', (req, res) => {
                                 activationId: Math.random() * (new Date().getTime())
                             })
                             usr.save().then((res8) => {
-                                sendMail(res8.email, 'Account Activation', "<h3>Dear " + res8.username + ",</h3><br><br><p>Click the link to activate your account!</p><hr><a href='"+activation_url+"/api/uam/activate/" + res8.activationId + "/" + res8._id + "'>Click me!</a><hr><br><br>");
-                                //logger("API", "login", "", "", "success", res8._id, req.connection.remoteAddress, "POST");
+                                sendMail(res8.email, 'Account Activation', "<h3>Dear " + res8.username + ",</h3><br><br><p>Click the link to activate your account!</p><hr><a href='" + activation_url + "/api/uam/activate/" + res8.activationId + "/" + res8._id + "'>Click me!</a><hr><br><br>");
+                                //logger("API", "register", "", res8._id, "success", "", req.connection.remoteAddress, "POST");
                                 res.send({ error: "Check your mail to verify the email address!" })
                             });
                         })
@@ -122,8 +123,8 @@ app.post('/register', (req, res) => {
                     activationId: Math.random() * (new Date().getTime())
                 })
                 usr.save().then((res8) => {
-                    sendMail(res8.email, 'Account Activation and Username creation', "<h3>Dear " + res8.username + ",</h3><br><br><p>Click the link to activate your account and create a new username and password!</p><hr><a href='"+activation_url+"/api/uam/activate/" + res8.activationId + "/" + res8._id + "?channel=adminCreated'>Click me!</a><hr><br><br>");
-                    //logger("API", "login", "", "", "success", res8._id, req.connection.remoteAddress, "POST");
+                    sendMail(res8.email, 'Account Activation and Username creation', "<h3>Dear " + res8.username + ",</h3><br><br><p>Click the link to activate your account and create a new username and password!</p><hr><a href='" + activation_url + "/api/uam/activate/" + res8.activationId + "/" + res8._id + "?channel=adminCreated'>Click me!</a><hr><br><br>");
+                    //logger("API", "register", "", res8._id, "success", res8._id, req.connection.remoteAddress, "POST");
                     res.send({ error: "OK" })
                 });
             }
@@ -133,7 +134,7 @@ app.post('/register', (req, res) => {
 
 
 app.post('/logout', (req, res) => {
-    //    logger("API", "logout", "", "", "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "POST");
+    //logger("API", "logout", "", "", "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "POST");
     res.cookie('token', '', { httpOnly: true }).send({
         url: '',
         message: "Logout Successful",
@@ -147,7 +148,7 @@ app.post('/deactivateUser/:id', (req, res) => {
     user.findByIdAndUpdate(deactivateId, {
         deactivated: true
     }).then((res1) => {
-        // logger("API", "deactivateUser", "", req.params.id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "POST");
+        //logger("API", "deactivateUser", "", req.params.id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "POST");
         res.send(res1);
     })
 })
@@ -157,7 +158,7 @@ app.post('/activateUser/:id', (req, res) => {
     user.findByIdAndUpdate(activateId, {
         deactivated: false
     }).then((res1) => {
-        // logger("API", "activateUser", "", req.params.id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "POST");
+        //logger("API", "activateUser", "", req.params.id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "POST");
         res.send(res1);
     })
 })
@@ -175,7 +176,7 @@ app.post('/activateUser/:id', (req, res) => {
 //         })
 
 
-//         // logger("API", "activateUser", "", req.params.id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "POST");
+//         // //logger("API", "activateUser", "", req.params.id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "POST");
 //         res.send();
 //     })
 // })
@@ -183,7 +184,7 @@ app.post('/activateUser/:id', (req, res) => {
 app.delete('/deleteUser/:id', (req, res) => {
     var deleteUser = req.params.id;
     user.findByIdAndRemove(deleteUser, (err, res1) => {
-        // logger("API", "deleteUser", "", req.params.id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "POST");
+        //logger("API", "deleteUser", "", req.params.id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "POST");
         res.send("OK");
     })
 })
@@ -223,12 +224,16 @@ sendMail = (senderMailId, subject, html) => {
 
 
 app.get('/roles/:id', (req, res) => {
+    //logger("API", "roles", "", req.params.id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "GET");
+
     roles.find({ _id: ObjectId(req.params.id) }).then((docs) => {
         res.send(docs);
     })
 });
 
 app.get('/roles', (req, res) => {
+    //logger("API", "roles", "", "", "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "GET");
+
     var ids = req.query.ids;
     var mode = req.query.mode;
     if (mode != undefined && mode.length > 0) {
@@ -272,27 +277,31 @@ app.get('/roles', (req, res) => {
 });
 
 app.post('/roles', (req, res) => {
+
     var obj1 = new roles(req.body);
     obj1.save().then((doc) => {
+        //logger("API", "roles", "", doc._id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "POST");
+
         res.send(`${doc}`);
     })
 })
 
 app.get("/setupRoles", (req, res) => {
-    var rolesSetup = [{roleName:"workitems",type:"",mode:""},{roleName:"process",type:"",mode:""},{roleName:"listObjects",type:"",mode:""},
-    {roleName:"listProcess",type:"",mode:""},{roleName:"objectViewer",type:"",mode:""},{roleName:"objectBuilder",type:"",mode:""},
-    {roleName:"listForms",type:"",mode:""},{roleName:"index",type:"",mode:""},{roleName:"header",type:"",mode:""},
-    {roleName:"formBuilder",type:"",mode:""},{roleName:"admin",type:"",mode:""},{roleName:"test",type:"",mode:""},
-    {roleName:"maker",type:"participant",mode:"edit"},{roleName:"checker",type:"participant",mode:"view"},{roleName:"listInstances",type:"",mode:""}];
+    //logger("API", "setupRoles", "", "", "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "GET");
+
+    var rolesSetup = [{ roleName: "workitems", type: "", mode: "" }, { roleName: "process", type: "", mode: "" }, { roleName: "listObjects", type: "", mode: "" },
+    { roleName: "listProcess", type: "", mode: "" }, { roleName: "objectViewer", type: "", mode: "" }, { roleName: "objectBuilder", type: "", mode: "" },
+    { roleName: "listForms", type: "", mode: "" }, { roleName: "index", type: "", mode: "" }, { roleName: "header", type: "", mode: "" },
+    { roleName: "formBuilder", type: "", mode: "" }, { roleName: "admin", type: "", mode: "" }, { roleName: "test", type: "", mode: "" },
+    { roleName: "maker", type: "participant", mode: "edit" }, { roleName: "checker", type: "participant", mode: "view" }, { roleName: "listInstances", type: "", mode: "" }];
     for (var i = 0; i < rolesSetup.length; i++) {
-        var role=new roles({
-            _id:rolesSetup[i].roleName,
-            roleName:rolesSetup[i].roleName,
-            type:rolesSetup[i].type,
-            mode:rolesSetup[i].mode
+        var role = new roles({
+            _id: rolesSetup[i].roleName,
+            roleName: rolesSetup[i].roleName,
+            type: rolesSetup[i].type,
+            mode: rolesSetup[i].mode
         })
-        role.save().then((res)=>{
-            console.log(res._id+" is saved!");
+        role.save().then((res) => {
         })
     }
     res.send({ "status": "Role insertion initiated" })
@@ -300,22 +309,17 @@ app.get("/setupRoles", (req, res) => {
 
 
 app.get('/user', (req, res) => {
+    //logger("API", "user", "", "", "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "GET");
+
     user.find({}).then((docs) => {
         res.send(docs);
     })
 });
 
-// app.get('/user/:id', (req, res) => {
-//     req.params.id = req.params.id.replace("_", "")
-//     user.findById(req.params.id, (err, docs) => {
-//         res.send({
-//             user: docs.username
-//         })
-//     })
-// });
 
 app.get('/user/:id', (req, res) => {
-    console.log(req.params.id)
+    //logger("API", "user", "", req.params.id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "GET");
+
     user.findById(req.params.id, (err, docs) => {
         res.send(docs)
     })
@@ -324,16 +328,19 @@ app.get('/user/:id', (req, res) => {
 app.post('/user', (req, res) => {
     var obj1 = new user(req.body);
     obj1.save().then((doc) => {
+        //logger("API", "user", "", doc._id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "POST");
+
         res.send(`${doc}`);
     })
 })
 
 app.put('/user/:id', (req, res) => {
     id = req.params.id;
-    console.log("AAA");
     user.findByIdAndUpdate(id, {
         roles: req.body.roles
     }).then((res1) => {
+        //logger("API", "user", "", req.params.id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "PUT");
+
         res.send(res1);
     })
 
@@ -347,14 +354,17 @@ app.put('/user', (req, res) => {
         user.findByIdAndUpdate(id, {
             password: res3
         }).then((res1) => {
+            //logger("API", "user", "", res1._id, "success", jsonwebtoken.verify(req.cookies.token, jwt_key).userId, req.connection.remoteAddress, "PUT");
+
             res.send(res1);
         })
 
     });
 })
 
+//x123
 app.get('/login', (req, res) => {
-    //logger("page", "login", "", "", "success", "", req.connection.remoteAddress, "GET");
+    ////logger("page", "login", "", "", "success", "", req.connection.remoteAddress, "GET");
     res.sendFile(__dirname + '/public/login/login.html')
 })
 
@@ -428,12 +438,16 @@ app.post('/login', (req, res) => {
 })
 
 app.get('/activate/:activationId/:userId', (req, res) => {
+    //logger("API", "activate", req.params.activationId, req.params.userId, "success", "", req.connection.remoteAddress, "GET");
+
     activateDeactivate(req, res)
 
 })
 
 
 app.post('/activate/:activationId/:userId', (req, res) => {
+    //logger("API", "activate", req.params.activationId, req.params.userId, "success", "", req.connection.remoteAddress, "POST");
+
     activateDeactivate(req, res)
 })
 
@@ -506,18 +520,24 @@ activateDeactivate = (req, res) => {
 
 
 app.post('/resendActivationLink', (req, res) => {
+
     var email = req.body.email;
 
     user.find({ "email": email }).then((users) => {
         if (users.length > 0) {
             if (users[0].activated == false) {
-                sendMail(users[0].email, 'Account Activation', "<h3>Dear " + users[0].username + ",</h3><br><br><p>Click the link to activate your account!</p><hr><a href='"+activation_url+"/api/uam/api/uam/activate/" + users[0].activationId + "/" + users[0]._id + "'>Click me!</a><hr><br><br>");
+                sendMail(users[0].email, 'Account Activation', "<h3>Dear " + users[0].username + ",</h3><br><br><p>Click the link to activate your account!</p><hr><a href='" + activation_url + "/api/uam/api/uam/activate/" + users[0].activationId + "/" + users[0]._id + "'>Click me!</a><hr><br><br>");
+                //logger("API", "resendActivationLink", "", req.body.email, "success", "", req.connection.remoteAddress, "POST");
                 res.send({ status: "OK", message: "Check your mail to verify the email address!" })
 
             } else {
+                //logger("API", "resendActivationLink", "", req.body.email, "failure", "", req.connection.remoteAddress, "POST");
+
                 res.send({ status: "OK", message: "user already activated!" })
             }
         } else {
+            //logger("API", "resendActivationLink", "", req.body.email, "failure", "", req.connection.remoteAddress, "POST");
+
             res.send({ status: "ERROR", message: "user not yet registered!" })
         }
     })
