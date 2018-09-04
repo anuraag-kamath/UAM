@@ -406,10 +406,10 @@ app.post('/login', (req, res) => {
                     //     res.end();
                     // });
 
-                    var sendBackUrl = process.env.successfulLoginURL || '/successfulLogin.html?user=' + res1[0].username;
-
+                    //var sendBackUrl = process.env.successfulLoginURL || '/successfulLogin.html?user=' + res1[0].username;
+                    //console.log(sendBackUrl)
                     res.cookie('token', token, { httpOnly: true }).send({
-                        url: sendBackUrl,
+                        url: "/index.html",
                         token: token,
                         message: "Successful Login!"
                     })
