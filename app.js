@@ -18,7 +18,7 @@ var { userActivity } = require('./schemas/userActivity');
  
 
 
-const port = process.env.UAM_PORT || 9100;
+const port = process.env.UAM_PORT || process.env.PORT || 9100;
 const jwt_key = process.env.JWT_KEY || "alphabetagamma"
 const email_id = process.env.EMAIL_ID || ""
 const email_password = process.env.EMAIL_PASSWORD || ""
