@@ -9,7 +9,7 @@ WINDOWS:-
 
 set JWT_KEY="keyofyourchoice"
 
-set UAM_PORT="<<PORT>>"
+set UAM_PORT=12001
 
 set EMAIL_ID="<<email id to be used for sending mails>>"
 
